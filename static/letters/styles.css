@@ -1,0 +1,5 @@
+.container{max-width:900px;margin:40px auto;font-family:-apple-system,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+.card{border:1px solid #ddd;padding:16px;border-radius:12px;}
+button{background:#0b57d0;color:#fff;border:0;padding:10px 16px;border-radius:8px;cursor:pointer;}
+pre{background:#f7f7f7;padding:12px;border-radius:8px;white-space:pre-wrap;}

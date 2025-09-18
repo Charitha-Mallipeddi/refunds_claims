@@ -1,0 +1,18 @@
+Upon receipt and review of your application, it was determined that your
+application for a refund has been Denied for the following reason(s):
+
+The ticket(s) submitted have no remaining value.
+
+The LIRR is a state agency that must comply with regulated tariffs that govern the pricing of tickets and 
+the issuance of refunds. The decision was rendered based on these regulations in order for the LIRR to remain 
+in compliance. Additional information regarding the LIRR’s fare structure and refund policy may be obtained 
+via our website: {{ body_vars.website_url }}
+
+Although we are unable to fulfill your request, we appreciate your patronage.
+
+This notification is generated automatically and cannot accept responses. If you need additional assistance, 
+please contact us via the MTA’s online reporting system ({{ body_vars.contact_url }}) or call {{ body_vars.support_phone }}.
+
+Respectfully,
+
+LIRR Refund Department

@@ -1,0 +1,60 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Refunds / Letters</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+  <div class="container">
+    <h1>Refund Decision Letters</h1>
+
+    <form method="post" action="{% url 'letters:send_email' %}">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div class="grid">
+       
+        <div class="card">
+          <h3>Customer Info</h3>
+          <p>
+            {{ form.customer_name.label_tag }}<br>
+            {{ form.customer_name }}
+            {{ form.customer_name.errors }}
+          </p>
+          <p>
+            {{ form.customer_email.label_tag }}<br>
+            {{ form.customer_email }}
+            {{ form.customer_email.errors }}
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Letter Details</h3>
+          <p>
+            {{ form.reason.label_tag }}<br>
+            {{ form.reason }}
+            {{ form.reason.errors }}
+          </p>
+          <p>
+            {{ form.notes.label_tag }}<br>
+            {{ form.notes }}
+            {{ form.notes.errors }}
+          </p>
+          <button type="submit">Send Email</button>
+        </div>
+      </div>
+    </form>
+
+    {% if messages %}
+      <div style="margin-top:20px;">
+        {% for m in messages %}
+          <div class="card">{{ m }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>
