@@ -1,0 +1,135 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    @page { size: letter; margin: 54pt; }
+    body { font-family: Helvetica, Arial, sans-serif; font-size: 11pt; color:#111; }
+    .w { width: 504pt; }                      /* 612 - 54 - 54 */
+    .rule { border-bottom:1pt solid #e5e7eb; height:0; }
+    .muted { color:#6b7280; font-size:9pt; }
+    .title { font-size:16pt; font-weight:700; color:#111827; padding-top:6pt; padding-bottom:8pt; }
+    .sp-6 { height:6pt; } .sp-10 { height:10pt; } .sp-14 { height:14pt; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <table class="w" cellspacing="0" cellpadding="0">
+    <!-- Row 1: logo + railroad name (left) -->
+    <tr>
+      <td valign="middle">
+        <table cellspacing="0" cellpadding="0">
+          <tr>
+            <td width="42" valign="middle">
+              {% if rr == 'LIRR' %}
+                <img src="{% static 'letters/lirr_logo.png' %}" alt="LIRR" height="28">
+              {% else %}
+                <img src="{% static 'letters/mnr_logo.png' %}" alt="MNR" height="28">
+              {% endif %}
+            </td>
+            <td valign="middle"><b>{{ rr_label }}</b></td>
+          </tr>
+        </table>
+      </td>
+      <td align="right"></td>
+    </tr>
+
+    <!-- Row 2: date (left) and reference (right) -->
+    <tr>
+      <td valign="bottom"><span class="muted">{{ issue_date }}</span></td>
+      <td align="right" valign="bottom">{% if claim_id %}<b>Reference # {{ claim_id }}</b>{% endif %}</td>
+    </tr>
+
+    <!-- Row 3: title full width -->
+    <tr><td colspan="2" class="title">Refund Decision Letter</td></tr>
+    <tr><td colspan="2" class="rule"></td></tr>
+  </table>
+
+  <!-- ADDRESS block: only if a real address exists -->
+  {% if address1 or address2 or city or state or zip %}
+  <table class="w" cellspacing="0" cellpadding="0">
+    {% if address_name %}<tr><td>{{ address_name }}</td></tr>{% endif %}
+    {% if address1 %}<tr><td>{{ address1 }}</td></tr>{% endif %}
+    {% if address2 %}<tr><td>{{ address2 }}</td></tr>{% endif %}
+    <tr><td>
+      {% if city %}{{ city }}{% endif %}
+      {% if state or zip %}{% if city %}, {% endif %}{% endif %}
+      {% if state %}{{ state }}{% endif %}
+      {% if zip %} {{ zip }}{% endif %}
+    </td></tr>
+    {% if customer_email %}<tr><td>Email: {{ customer_email }}</td></tr>{% endif %}
+    <tr><td class="sp-10"></td></tr>
+  </table>
+  {% endif %}
+
+  <!-- SALUTATION -->
+  <table class="w" cellspacing="0" cellpadding="0">
+    <tr><td>Dear {{ customer_name }},</td></tr>
+    <tr><td class="sp-10"></td></tr>
+  </table>
+
+  <!-- BODY -->
+  <table class="w" cellspacing="0" cellpadding="0">
+    <tr>
+      <td>
+        Upon receipt and review of your application, it was determined that your
+        application for a refund has been <b>Denied</b> for the following reason(s):
+      </td>
+    </tr>
+    <tr><td class="sp-6"></td></tr>
+    <tr><td><b>{{ denial_reason }}</b></td></tr>
+    <tr><td class="sp-10"></td></tr>
+
+    {% if rr == 'LIRR' %}
+      <tr><td>
+        The LIRR is a state agency that must comply with regulated tariffs that govern the
+        pricing of tickets and the issuance of refunds. The decision was rendered based on
+        these regulations in order for the LIRR to remain in compliance. Additional
+        information regarding the LIRR’s fare structure and refund policy may be obtained
+        via our website <u>www.new.mta.info</u>.
+      </td></tr>
+    {% else %}
+      <tr><td>
+        Metro-North Railroad is a state agency that must comply with regulated tariffs that
+        govern the pricing of tickets and the issuance of refunds. The decision was rendered
+        based on these regulations for Metro-North to remain in compliance. Additional
+        information regarding fares and refund policy may be obtained via our website
+        <u>www.new.mta.info</u>.
+      </td></tr>
+    {% endif %}
+
+    <tr><td class="sp-10"></td></tr>
+    <tr><td>Although we are unable to fulfill your request, we appreciate your patronage.</td></tr>
+    <tr><td class="sp-10"></td></tr>
+
+    <tr>
+      <td>
+        This email notification is generated automatically and cannot accept responses.
+        If you need additional assistance, please contact us via the MTA’s online reporting
+        system (<u>{{ contact_url }}</u>) or call <b>{{ contact_phone }}</b>. Please include
+        the reference number you received in this letter in your correspondence or have it
+        available to provide to an agent if contacting us by phone.
+      </td>
+    </tr>
+
+    {% if notes %}
+      <tr><td class="sp-10"></td></tr>
+      <tr><td><b>Notes:</b> {{ notes }}</td></tr>
+    {% endif %}
+
+    <tr><td class="sp-14"></td></tr>
+    <tr><td>Respectfully,</td></tr>
+    <tr><td class="sp-10"></td></tr>
+    <tr><td>{{ dept_name }}</td></tr>
+  </table>
+
+  <!-- FOOTER -->
+  <table class="w" cellspacing="0" cellpadding="0">
+    <tr><td class="sp-14"></td></tr>
+    <tr><td class="muted">{{ footer_line }}</td></tr>
+  </table>
+
+</body>
+</html>

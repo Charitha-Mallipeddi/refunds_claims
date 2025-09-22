@@ -7,7 +7,7 @@ REASONS = [
 ]
 
 class LetterForm(forms.Form):
-    customer_name = forms.CharField(label="Customer Name", max_length=120)
+    customer_name = forms.CharField(label="Customer Name", max_length=120)  # required=True by default
     customer_email = forms.EmailField(label="Customer Email")
     reason = forms.ChoiceField(label="Denial Reason", choices=REASONS)
     notes = forms.CharField(label="Notes", widget=forms.Textarea, required=False)

@@ -1,0 +1,9 @@
+Dear {{ customer_name }},
+
+After reviewing your refund request, we’re unable to approve it.
+
+Reason: {{ denial_reason }}
+{% if notes %}Notes: {{ notes }}{% endif %}
+
+Thank you,
+Metro-North Railroad — Refunds

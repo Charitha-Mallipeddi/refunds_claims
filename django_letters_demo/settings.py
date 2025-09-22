@@ -1,11 +1,13 @@
+# django_letters_demo/settings.py
+
 from pathlib import Path
 import os
 
-BASE_DIR = Path(__file__).resolve().parent.parent 
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-secret-key-change-me")
 DEBUG = True
-ALLOWED_HOSTS: list[str] = []  
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -14,7 +16,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     "letters",
 ]
 
@@ -35,8 +36,8 @@ ASGI_APPLICATION = "django_letters_demo.asgi.application"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
-        "APP_DIRS": True,  
+        "DIRS": [BASE_DIR / "templates"],   # optional; app templates still work via APP_DIRS
+        "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
@@ -62,24 +63,18 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-
 LANGUAGE_CODE = "en-us"
-TIME_ZONE = "America/New_York"  
+TIME_ZONE = "America/New_York"
 USE_I18N = True
 USE_TZ = True
 
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
-STATIC_URL = "static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]  
-
-
-
-MEDIA_URL = "media/"
+MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "no-reply@example.com")
-
+DEFAULT_FROM_EMAIL = "no-reply@local.refunds"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

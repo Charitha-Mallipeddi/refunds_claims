@@ -1,21 +1,180 @@
 {% load static %}
-<div style="font-family: Arial, sans-serif; line-height:1.4;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
-    <tr>
-      <!-- Left: message -->
-      <td style="vertical-align:top; padding:12px;">
-        <p>Dear {{ refund.customer.first }} {{ refund.customer.last }},</p>
-        <p>Your refund request <b>{{ refund.refundId }}</b> has been <b>denied</b>.</p>
-        <p>Reason: <b>{{ reason.code }}</b> — {{ reason.description }}</p>
-      </td>
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    /* Print/PDF page size + 1" margins for a letterhead look */
+    @page { size: letter; margin: 72pt; }
 
-      <!-- Right: logo + refund ref -->
-      <td style="vertical-align:top; width:220px; text-align:right; padding:12px; background:#f7f7f9;">
-        <img src="{% static 'letters/' %}{{ refund.mode|lower }}.png" 
-             alt="{{ refund.mode }} Logo" style="max-height:56px; margin-bottom:8px;">
-        <div style="font-size:12px; color:#444;">Refund Ref</div>
-        <div style="font-size:18px; font-weight:bold;">{{ refund.refundId }}</div>
+    html, body { margin:0; padding:0; }
+    /* Serif body like your sample; swap to Helvetica if you prefer */
+    body { font-family: Georgia, "Times New Roman", Times, serif; font-size:11pt; color:#111; line-height:1.5; }
+
+    /* Typography */
+    .muted { color:#6b7280; font-size:9pt; }
+    .lead  { font-size:11pt; }
+    .reason { font-weight:700; }         /* bold reason line */
+
+    /* Header */
+    .header-row td { vertical-align:middle; }
+    .header-left  { width:65%; }
+    .header-right { width:35%; text-align:right; }
+    .rr-label { font-weight:700; letter-spacing:.2pt; padding-left:8pt; white-space:nowrap; font-size:13pt; }
+    img { display:block; }
+
+    /* Spacing helpers */
+    .sp-6{height:6pt;} .sp-8{height:8pt;} .sp-10{height:10pt;} .sp-14{height:14pt;} .sp-20{height:20pt;}
+
+    /* Links like the sample (underlined, black) */
+    a { color:#111; text-decoration: underline; }
+
+    /* Tiny fixed footer like sample */
+    .footer-fixed{
+      position:fixed; left:72pt; right:72pt; bottom:36pt;
+      font-size:8pt; color:#6b7280; text-align:center; line-height:1.3;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 100% wrapper centers inner container in all engines -->
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+    <tr>
+      <td align="center">
+
+        <!-- Fixed-width container: 6.5" content (612 - 72*2 = 468pt) -->
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0"
+               style="width:468pt !important; max-width:468pt !important; margin:0 auto !important; border-collapse:collapse;">
+          <tr>
+            <td>
+
+              <!-- HEADER -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;">
+                <tr class="header-row">
+                  <td class="header-left">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="width:auto; border-collapse:collapse;">
+                      <tr>
+                        <td width="46" valign="middle">
+                          {% if rr == 'LIRR' %}
+                            <img src="{% static 'letters/lirr_logo.png' %}" alt="LIRR" height="24">
+                          {% else %}
+                            <img src="{% static 'letters/mnr_logo.png' %}" alt="MNR" height="24">
+                          {% endif %}
+                        </td>
+                        <td class="rr-label" valign="middle">{{ rr_label }}</td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td class="header-right"></td>
+                </tr>
+
+                <tr class="header-row">
+                  <td class="header-left"><span class="muted">{{ issue_date }}</span></td>
+                  <td class="header-right">{% if claim_id %}<b>Reference # {{ claim_id }}</b>{% endif %}</td>
+                </tr>
+
+                <!-- removed divider line to match sample -->
+                <tr><td colspan="2" class="sp-10"></td></tr>
+              </table>
+
+              <!-- ADDRESS (optional; shows when any address fields are provided) -->
+              {% if address1 or address2 or city or state or zip or address_name or customer_email %}
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top:10pt; border-collapse:collapse;">
+                {% if address_name %}<tr><td class="lead">{{ address_name }}</td></tr>{% endif %}
+                {% if address1 %}<tr><td class="lead">{{ address1 }}</td></tr>{% endif %}
+                {% if address2 %}<tr><td class="lead">{{ address2 }}</td></tr>{% endif %}
+                <tr>
+                  <td class="lead">
+                    {% if city %}{{ city }}{% endif %}{% if state or zip %}{% if city %}, {% endif %}{% endif %}
+                    {% if state %}{{ state }}{% endif %}{% if zip %} {{ zip }}{% endif %}
+                  </td>
+                </tr>
+                {% if customer_email %}<tr><td class="lead">Email: {{ customer_email }}</td></tr>{% endif %}
+                <tr><td class="sp-10"></td></tr>
+              </table>
+              {% endif %}
+
+              <!-- SALUTATION (use salutation if provided, else name) -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td class="lead">
+                    Dear {{ customer_salutation|default:customer_name }},
+                  </td>
+                </tr>
+                <tr><td class="sp-10"></td></tr>
+              </table>
+
+              <!-- BODY (left-aligned paragraphs, like your sample) -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;">
+                <tr>
+                  <td class="lead">
+                    Upon receipt and review of your application, it was determined that your
+                    application for a refund has been <b>Denied</b> for the following reason(s):
+                  </td>
+                </tr>
+                <tr><td class="sp-8"></td></tr>
+                <tr><td class="lead reason">{{ denial_reason }}</td></tr>
+                <tr><td class="sp-10"></td></tr>
+
+                {% if rr == 'LIRR' %}
+                  <tr><td class="lead">
+                    The LIRR is a state agency that must comply with regulated tariffs that govern the
+                    pricing of tickets and the issuance of refunds. The decision was rendered based on
+                    these regulations in order for the LIRR to remain in compliance. Additional
+                    information regarding the LIRR’s fare structure and refund policy may be obtained
+                    via our website <a href="https://www.new.mta.info">www.new.mta.info</a>.
+                  </td></tr>
+                {% else %}
+                  <tr><td class="lead">
+                    Metro-North Railroad is a state agency that must comply with regulated tariffs that
+                    govern the pricing of tickets and the issuance of refunds. The decision was rendered
+                    based on these regulations for Metro-North to remain in compliance. Additional
+                    information regarding fares and refund policy may be obtained via our website
+                    <a href="https://www.new.mta.info">www.new.mta.info</a>.
+                  </td></tr>
+                {% endif %}
+
+                <tr><td class="sp-10"></td></tr>
+                <tr><td class="lead">Although we are unable to fulfill your request, we appreciate your patronage.</td></tr>
+                <tr><td class="sp-10"></td></tr>
+
+                <tr>
+                  <td class="lead">
+                    This email notification is generated automatically and cannot accept responses.
+                    If you need additional assistance, please contact us via the MTA’s online reporting
+                    system (<a href="{{ contact_url }}">{{ contact_url }}</a>) or call <b>{{ contact_phone }}</b>.
+                    Please include the reference number you received in this letter in your correspondence
+                    or have it available to provide to an agent if contacting us by phone.
+                  </td>
+                </tr>
+
+                {% if notes %}
+                  <tr><td class="sp-10"></td></tr>
+                  <tr><td class="lead"><b>Notes:</b> {{ notes }}</td></tr>
+                {% endif %}
+                <tr><td class="sp-14"></td></tr>
+              </table>
+
+              <!-- CLOSING -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr><td class="lead">Respectfully,</td></tr>
+                <tr><td class="sp-10"></td></tr>
+                <tr><td class="lead">{{ dept_name }}</td></tr>
+              </table>
+
+              <!-- FOOTER (fixed tiny gray line like sample) -->
+              <div class="footer-fixed">
+                {{ footer_line }}
+              </div>
+
+            </td>
+          </tr>
+        </table>
+
       </td>
     </tr>
   </table>
-</div>
+
+</body>
+</html>

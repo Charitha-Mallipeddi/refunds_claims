@@ -1,60 +1,113 @@
 {% load static %}
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
   <meta charset="utf-8">
-  <title>Refunds / Letters</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <title>Refund Decision Letters</title>
+  <link rel="stylesheet" href="{% static 'letters/styles.css' %}">
+  <style>
+    .container{max-width:900px;margin:32px auto;font-family:-apple-system,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:12px 0}
+    label{font-weight:600;margin-top:12px;display:block}
+    input,select,textarea{width:100%;padding:10px;font-size:16px}
+    .actions{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap}
+    .btn{padding:10px 16px;border:0;border-radius:8px;cursor:pointer}
+    .btn.primary{background:#0b57d0;color:#fff}
+    .btn.secondary{background:#6c757d;color:#fff}
+    .link{background:none;border:0;text-decoration:underline;cursor:pointer}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:8px}
+  </style>
 </head>
 <body>
-  <div class="container">
+<div class="container">
+  <header>
+    <img src="{% static 'letters/lirr_logo.png' %}" alt="LIRR" height="40">
+    <img src="{% static 'letters/mnr_logo.png' %}" alt="MNR" height="40">
     <h1>Refund Decision Letters</h1>
+  </header>
 
-    <form method="post" action="{% url 'letters:send_email' %}">
-      {% csrf_token %}
-      {{ form.non_field_errors }}
+  <!-- Force the centered template -->
+  <form method="post" action="{% url 'letters:send_email' %}?tpl=email">
+    {% csrf_token %}
+    <input type="hidden" name="tpl" value="email">
 
-      <div class="grid">
-       
-        <div class="card">
-          <h3>Customer Info</h3>
-          <p>
-            {{ form.customer_name.label_tag }}<br>
-            {{ form.customer_name }}
-            {{ form.customer_name.errors }}
-          </p>
-          <p>
-            {{ form.customer_email.label_tag }}<br>
-            {{ form.customer_email }}
-            {{ form.customer_email.errors }}
-          </p>
-        </div>
+    <label for="railroad">Railroad</label>
+    <select id="railroad" name="railroad" required>
+      <option value="LIRR">Long Island Rail Road (LIRR)</option>
+      <option value="MNR">Metro-North Railroad (MNR)</option>
+    </select>
 
-        <div class="card">
-          <h3>Letter Details</h3>
-          <p>
-            {{ form.reason.label_tag }}<br>
-            {{ form.reason }}
-            {{ form.reason.errors }}
-          </p>
-          <p>
-            {{ form.notes.label_tag }}<br>
-            {{ form.notes }}
-            {{ form.notes.errors }}
-          </p>
-          <button type="submit">Send Email</button>
-        </div>
+    <div class="grid">
+      <div>
+        <label for="customer_name">Customer Name</label>
+        <input id="customer_name" name="customer_name" required>
       </div>
-    </form>
-
-    {% if messages %}
-      <div style="margin-top:20px;">
-        {% for m in messages %}
-          <div class="card">{{ m }}</div>
-        {% endfor %}
+      <div>
+        <label for="customer_email">Customer Email</label>
+        <input id="customer_email" name="customer_email" type="email" required>
       </div>
-    {% endif %}
-  </div>
+    </div>
+
+    <div class="grid">
+      <div>
+        <label for="claim_id">Reference # (Claim ID)</label>
+        <input id="claim_id" name="claim_id" placeholder="e.g., 11111">
+      </div>
+      <div>
+        <label for="denial_reason">Denial Reason</label>
+        <select id="denial_reason" name="denial_reason" required>
+          <option value="INV_TKT">Invalid ticket</option>
+          <option value="DUP_REQ">Duplicate request</option>
+          <option value="EXP_WIN">Refund period expired</option>
+          <option value="INS_DOC">Insufficient documentation</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Address block (optional but recommended for the printed letter) -->
+    <label for="address1">Address Line 1</label>
+    <input id="address1" name="address1" placeholder="2068 5th Avenue">
+
+    <label for="address2">Address Line 2</label>
+    <input id="address2" name="address2" placeholder="Apt# 3A">
+
+    <div class="grid">
+      <div>
+        <label for="city">City</label>
+        <input id="city" name="city" placeholder="New York">
+      </div>
+      <div>
+        <label for="state">State</label>
+        <input id="state" name="state" placeholder="NY">
+      </div>
+    </div>
+
+    <div class="grid">
+      <div>
+        <label for="zip">ZIP</label>
+        <input id="zip" name="zip" placeholder="10035">
+      </div>
+      <div>
+        <label for="notes">Notes</label>
+        <input id="notes" name="notes" placeholder="">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" type="submit">Send Email</button>
+
+      <button class="btn secondary" type="submit"
+              formaction="{% url 'letters:download_letter_pdf' %}?tpl=email" formmethod="post">
+        Download Letter (PDF)
+      </button>
+
+      <button class="link" type="submit"
+              formaction="{% url 'letters:preview_email' %}?tpl=email"
+              formmethod="post" target="_blank">
+        Preview Email (HTML)
+      </button>
+    </div>
+  </form>
+</div>
 </body>
 </html>
